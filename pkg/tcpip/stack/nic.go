@@ -901,7 +901,9 @@ func (n *nic) DeliverNetworkPacket(protocol tcpip.NetworkProtocolNumber, pkt *Pa
 		return
 	}
 
-	pkt.RXChecksumValidated = n.NetworkLinkEndpoint.Capabilities()&CapabilityRXChecksumOffload != 0
+	if caps := n.NetworkLinkEndpoint.Capabilities(); caps&CapabilityRXChecksumOffloadPerPacket == 0 {
+		pkt.RXChecksumValidated = caps&CapabilityRXChecksumOffload != 0
+	}
 
 	if n.deliverLinkPackets {
 		n.DeliverLinkPacket(protocol, pkt)
